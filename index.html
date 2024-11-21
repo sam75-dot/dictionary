@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Word Generator</title>
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --primary-color: #009688;
+            --text-color: #333333;
+            --subtitle-color: #666666;
+            --button-hover: #00796b;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s ease;
+        }
+
+        .card {
+            position: relative;
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            margin-bottom: 20px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .card h2 {
+            margin: 0;
+            font-size: 28px;
+            color: var(--primary-color);
+        }
+
+        .card h3 {
+            margin: 10px 0;
+            font-size: 24px;
+            color: var(--text-color);
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 12px 24px;
+            border: none;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: var(--button-hover);
+        }
+
+        .audio-btn {
+            cursor: pointer;
+            margin-left: 15px;
+            vertical-align: middle;
+            transition: opacity 0.3s ease;
+        }
+
+        .audio-btn img {
+            width: 30px;
+            height: 30px;
+        }
+
+        .audio-btn:hover {
+            opacity: 0.7;
+        }
+
+        .developer-info {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 16px;
+            color: var(--subtitle-color);
+        }
+
+        .developer-info a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .developer-info a:hover {
+            text-decoration: underline;
+        }
+
+        .theme-button {
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            background-color: var(--card-bg);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .theme-button img {
+            width: 24px;
+            height: 24px;
+        }
+
+        .theme-button:hover {
+            background-color: var(--button-hover);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <button class="theme-button" aria-label="Change Theme" onclick="changeTheme()">
+            <img src="https://cdn.iconscout.com/icon/premium/png-512-thumb/theme-5126041-4275340.png?f=webp&w=256" alt="Theme Icon">
+        </button>
+        <h2 id="english-word">Word</h2>
+        <h3 id="arabic-meaning">معنى</h3>
+        <button onclick="getRandomWord()" aria-label="Get New Word">Get New Word</button>
+        <span class="audio-btn" onclick="playAudio()" aria-label="Play Pronunciation">
+            <img src="https://cdn.iconscout.com/icon/premium/png-512-thumb/sound-4465040-3703068.png?f=webp&w=256" alt="Sound Icon">
+        </span>
+    </div>
+
+    <!-- Developer Information -->
+    <div class="developer-info">
+        Developed by <strong>Islam Waheed </strong><br>
+        Contact 1: <a href="https://t.me/Islam809" target="_blank">@Islam809</a>
+    </div>
+
+    <script>
+        let wordsList = [];
+    
+        // Extended color palettes
+        const colorPalettes = [
+            { bg: "#f0f2f5", card: "#ffffff", primary: "#009688", text: "#333333", subtitle: "#666666", hover: "#00796b" },
+            { bg: "#f7f7f7", card: "#ffffff", primary: "#e91e63", text: "#212121", subtitle: "#757575", hover: "#c2185b" },
+            { bg: "#e0f7fa", card: "#ffffff", primary: "#3f51b5", text: "#1a237e", subtitle: "#5c6bc0", hover: "#303f9f" },
+            { bg: "#fff3e0", card: "#ffffff", primary: "#ff9800", text: "#4e342e", subtitle: "#6d4c41", hover: "#fb8c00" },
+            { bg: "#e8f5e9", card: "#ffffff", primary: "#4caf50", text: "#2e7d32", subtitle: "#81c784", hover: "#388e3c" },
+            { bg: "#eceff1", card: "#ffffff", primary: "#607d8b", text: "#263238", subtitle: "#78909c", hover: "#455a64" }
+        ];
+    
+        function changeTheme() {
+            const randomPalette = colorPalettes[Math.floor(Math.random() * colorPalettes.length)];
+            applyTheme(randomPalette);
+            localStorage.setItem('theme', JSON.stringify(randomPalette));
+        }
+    
+        function loadSavedTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                const palette = JSON.parse(savedTheme);
+                applyTheme(palette);
+            }
+        }
+    
+        function applyTheme(palette) {
+            document.documentElement.style.setProperty('--bg-color', palette.bg);
+            document.documentElement.style.setProperty('--card-bg', palette.card);
+            document.documentElement.style.setProperty('--primary-color', palette.primary);
+            document.documentElement.style.setProperty('--text-color', palette.text);
+            document.documentElement.style.setProperty('--subtitle-color', palette.subtitle);
+            document.documentElement.style.setProperty('--button-hover', palette.hover);
+        }
+    
+        async function loadWords() {
+            try {
+                const response = await fetch('text.txt');
+                if (!response.ok) throw new Error('Words file not found');
+                const text = await response.text();
+                const lines = text.split('\n').filter(line => line.trim() !== '');
+                wordsList = lines.map(line => {
+                    const parts = line.split('|');
+                    return { english: parts[0].trim(), arabic: parts[1].trim() };
+                });
+                getRandomWord();
+            } catch (error) {
+                console.error('Error loading words:', error);
+                document.getElementById('english-word').textContent = 'Error';
+                document.getElementById('arabic-meaning').textContent = 'خطأ';
+            }
+        }
+    
+        function getRandomWord() {
+            if (wordsList.length === 0) return;
+            const randomWord = wordsList[Math.floor(Math.random() * wordsList.length)];
+            document.getElementById('english-word').textContent = randomWord.english;
+            document.getElementById('arabic-meaning').textContent = randomWord.arabic;
+        }
+    
+        function playAudio() {
+            const word = document.getElementById('english-word').textContent;
+            const msg = new SpeechSynthesisUtterance(word);
+            msg.lang = 'en-US';
+            window.speechSynthesis.speak(msg);
+        }
+    
+        window.onload = () => {
+            loadSavedTheme();
+            loadWords();
+        };
+    </script>    
+
+</body>
+</html>
